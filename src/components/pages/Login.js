@@ -16,6 +16,7 @@ const Login = () => {
   const handleClick = () => setShow(!show);
   const toast = useToast();
   const navigate = useNavigate();
+  const [loading, setLoading] = React.useState(false);
   const [loginData, setLoginData] = React.useState({
     email: "",
     password: "",
@@ -26,29 +27,32 @@ const Login = () => {
     setLoginData({ ...loginData, [name]: value });
   };
 
-  console.log("data", loginData);
-
   const loginRequest = async () => {
     try {
+      setLoading(true);
       const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
+        "https://adrixus-server.herokuapp.com/api/auth/login",
         loginData
       );
       if (response.status === 200) {
         toast({
           title: response.data.message,
-          description: "Happy hacking!",
+          description: "Redirecting to main page ",
           status: "success",
           duration: 2000,
         });
+        setTimeout(() => {
+          navigate("/dashboard");
+          setLoading(false);
+        }, 1000);
       }
     } catch (error) {
-      console.log("error");
       toast({
-        title: error.message,
+        title: error.response.data.message,
         status: "error",
         duration: 2000,
       });
+      setLoading(false);
     }
   };
 
@@ -84,14 +88,19 @@ const Login = () => {
           colorScheme="green"
           variant="solid"
           width="full"
+          disabled={loading}
           onClick={loginRequest}
         >
           Sign in
         </Button>
-        <Button colorScheme="gray" variant="outline" width="full" onClick={() =>
-        {
-          navigate("/sign-up")
-        }} >
+        <Button
+          colorScheme="gray"
+          variant="outline"
+          width="full"
+          onClick={() => {
+            navigate("/sign-up");
+          }}
+        >
           Sign up
         </Button>
       </LoginContainer>

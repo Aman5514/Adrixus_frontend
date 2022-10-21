@@ -11,34 +11,80 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 const Registration = () => {
-  const [show, setShow] = React.useState(false);
-  const handleClick = () => setShow(!show);
   const navigate = useNavigate();
+  const toast = useToast();
+  const [show, setShow] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [registrationData, setRegistrationData] = React.useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+  });
+
+  const handleClick = () => setShow(!show);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setRegistrationData({ ...registrationData, [name]: value });
+  };
+
+  const registerNewUser = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        "https://adrixus-server.herokuapp.com/api/auth/registration",
+        registrationData
+      );
+      if (response.status === 201) {
+        toast({
+          title: response.data.message,
+          description: "Redirecting to login page",
+          status: "success",
+          duration: 2000,
+        });
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+        setLoading(false);
+      }
+    } catch (error) {
+      toast({
+        title: error.message,
+        status: "error",
+        duration: 2000,
+      });
+      setLoading(false);
+    }
+  };
 
   return (
     <RegistrationWrapper>
-      <RegistrationContainer>
+      <RegistrationContainer onSubmit={(e) => registerNewUser(e)}>
         <Title>Registration</Title>
         <Input
           placeholder="First Name"
           size="md"
           variant="filled"
-          // onChange={handleChange}
+          onChange={handleChange}
           name="firstName"
+          required
         />
         <Input
           placeholder="Last Name"
           size="md"
           variant="filled"
-          // onChange={handleChange}
+          onChange={handleChange}
           name="lastName"
+          required
         />
         <Input
           placeholder="Email Address"
           size="md"
           variant="filled"
-          // onChange={handleChange}
+          onChange={handleChange}
           name="email"
+          required
         />
         <InputGroup size="md">
           <Input
@@ -46,7 +92,7 @@ const Registration = () => {
             variant="filled"
             type={show ? "text" : "password"}
             placeholder="Enter password"
-            // onChange={handleChange}
+            onChange={handleChange}
             name="password"
             required
           />
@@ -60,7 +106,8 @@ const Registration = () => {
           colorScheme="green"
           variant="solid"
           width="full"
-          // onClick={loginRequest}
+          disabled={loading}
+          type="submit"
         >
           Register
         </Button>
@@ -88,7 +135,10 @@ align-items:center;
 height:100vh;
 `;
 
-const RegistrationContainer = Styled(RegistrationWrapper)`
+const RegistrationContainer = Styled("form")`
+display:flex;
+justify-content:center;
+align-items:center;
 flex-direction:column;
 width: 450px;
 gap:25px;

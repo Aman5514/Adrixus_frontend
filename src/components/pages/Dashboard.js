@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import Styled from "styled-components";
 import commentsList from "../common/Static";
 import { Input, Select } from "@chakra-ui/react";
@@ -16,7 +16,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     setCurrentLists(listData.slice(indexOfFirstListData, indexOfLastListData));
-  }, [listDataPerPage , currentPage]);
+  }, [listDataPerPage, currentPage]);
 
   return (
     <DashboardWrapper>
@@ -43,6 +43,7 @@ const Dashboard = () => {
           width="150px"
           onChange={(e) => {
             setListDataPerPage(e.target.value);
+            setCurrentPage(1);
           }}
           focusBorderColor="gray"
         >
@@ -51,6 +52,28 @@ const Dashboard = () => {
           <option value={25}>25</option>
           <option value={50}>50</option>
           <option value={100}>100</option>
+        </Select>
+        <Select
+          width="400px"
+          placeholder="Filter by domain"
+          onChange={(e) => {
+            if (e.target.value === "") {
+              setCurrentLists(
+                listData.slice(indexOfFirstListData, indexOfLastListData)
+              );
+            } else {
+              setCurrentLists(
+                listData.filter((data) => data.email.includes(e.target.value))
+              );
+            }
+          }}
+          focusBorderColor="gray"
+        >
+          <option value={".com"}>.Com</option>
+          <option value={".biz"}>.Biz</option>
+          <option value={".org"}>.Org</option>
+          <option value={".us"}>.Us</option>
+          <option value={".tv"}>.Tv</option>
         </Select>
       </DashboardHeader>
       <TableContainer>
