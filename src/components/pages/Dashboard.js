@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Styled from "styled-components";
 import commentsList from "../common/Static";
-import { Input, Select } from "@chakra-ui/react";
 import Pagination from "../common/Pagination";
+import Header from "../common/Header";
 
 const Dashboard = () => {
   const [listData, setListData] = useState(commentsList);
@@ -20,62 +20,14 @@ const Dashboard = () => {
 
   return (
     <DashboardWrapper>
-      <DashboardHeader>
-        <Title>Pagination</Title>
-        <Input
-          variant="outline"
-          placeholder="Search"
-          size="md"
-          focusBorderColor="gray"
-          onChange={(e) => {
-            if (e.target.value === "") {
-              setCurrentLists(
-                listData.slice(indexOfFirstListData, indexOfLastListData)
-              );
-            } else {
-              setCurrentLists(
-                listData.filter((data) => data.email.includes(e.target.value))
-              );
-            }
-          }}
-        />
-        <Select
-          width="150px"
-          onChange={(e) => {
-            setListDataPerPage(e.target.value);
-            setCurrentPage(1);
-          }}
-          focusBorderColor="gray"
-        >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={25}>25</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-        </Select>
-        <Select
-          width="400px"
-          placeholder="Filter by domain"
-          onChange={(e) => {
-            if (e.target.value === "") {
-              setCurrentLists(
-                listData.slice(indexOfFirstListData, indexOfLastListData)
-              );
-            } else {
-              setCurrentLists(
-                listData.filter((data) => data.email.includes(e.target.value))
-              );
-            }
-          }}
-          focusBorderColor="gray"
-        >
-          <option value={".com"}>.Com</option>
-          <option value={".biz"}>.Biz</option>
-          <option value={".org"}>.Org</option>
-          <option value={".us"}>.Us</option>
-          <option value={".tv"}>.Tv</option>
-        </Select>
-      </DashboardHeader>
+      <Header
+        setCurrentLists={setCurrentLists}
+        setCurrentPage={setCurrentPage}
+        setListDataPerPage={setListDataPerPage}
+        indexOfFirstListData={indexOfFirstListData}
+        indexOfLastListData={indexOfLastListData}
+        listData={listData}
+      />
       <TableContainer>
         <TableHeader>
           <TableRow>
@@ -112,21 +64,9 @@ export default Dashboard;
 
 const DashboardWrapper = Styled("div")`
 display:flex;
-padding:15px 30px;
+padding:0px 30px 15px;
 align-items:center;
 flex-direction:column;
-gap:20px;
-`;
-const DashboardHeader = Styled("div")`
-display:flex;
-align-items:center;
-width:100%;
-gap:20px;
-justify-content:space-between;
-`;
-const Title = Styled("h1")`
-font-size:35px;
-letter-spacing:2px;
 `;
 
 const TableContainer = Styled("table")`
