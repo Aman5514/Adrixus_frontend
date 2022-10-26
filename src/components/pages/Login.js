@@ -88,7 +88,7 @@ const Login = () => {
           colorScheme="green"
           variant="solid"
           width="full"
-          disabled={loading}
+          isLoading={loading}
           onClick={loginRequest}
         >
           Sign in

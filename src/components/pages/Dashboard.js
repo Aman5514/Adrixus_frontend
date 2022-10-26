@@ -1,22 +1,46 @@
 import React, { useState, useEffect } from "react";
 import Styled from "styled-components";
-import commentsList from "../common/Static";
 import Pagination from "../common/Pagination";
 import Header from "../common/Header";
+import { gql, useQuery } from "@apollo/client";
+import { CircularProgress } from "@chakra-ui/react";
+
+const GET_USERS = gql`
+  query getUsers {
+    users {
+      id
+      name
+      email
+      body
+    }
+  }
+`;
 
 const Dashboard = () => {
-  const [listData, setListData] = useState(commentsList);
+  const { loading, error, data } = useQuery(GET_USERS);
+  const [listData, setListData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [listDataPerPage, setListDataPerPage] = useState(5);
+  const [listDataPerPage, setListDataPerPage] = useState(10);
   const indexOfLastListData = currentPage * listDataPerPage;
   const indexOfFirstListData = indexOfLastListData - listDataPerPage;
   const [currentLists, setCurrentLists] = useState(
     listData.slice(indexOfFirstListData, indexOfLastListData)
   );
 
+  // console.log(
+  //   "check",
+  //   listData.sort((a, b) => (a.id > b.id ? 1 : -1))
+  // );
+
   useEffect(() => {
     setCurrentLists(listData.slice(indexOfFirstListData, indexOfLastListData));
-  }, [listDataPerPage, currentPage]);
+  }, [listDataPerPage, currentPage, listData]);
+
+  useEffect(() => {
+    if (data) {
+      setListData(data?.users);
+    }
+  }, [data]);
 
   return (
     <DashboardWrapper>
@@ -28,34 +52,48 @@ const Dashboard = () => {
         indexOfLastListData={indexOfLastListData}
         listData={listData}
       />
-      <TableContainer>
-        <TableHeader>
-          <TableRow>
-            <TableHeadRow>S.No</TableHeadRow>
-            <TableHeadRow>Name</TableHeadRow>
-            <TableHeadRow>Email</TableHeadRow>
-            <TableHeadRow>Body</TableHeadRow>
-          </TableRow>
-        </TableHeader>
-        {currentLists.map((data, index) => (
-          <TableBody key={index}>
-            <TableRow>
-              <TableBodyRow style={{ textAlign: "center" }}>
-                {data.id}.
-              </TableBodyRow>
-              <TableBodyRow>{data.name}</TableBodyRow>
-              <TableBodyRow>{data.email}</TableBodyRow>
-              <TableBodyRow>{data.body}</TableBodyRow>
-            </TableRow>
-          </TableBody>
-        ))}
-      </TableContainer>
-      <Pagination
-        listDataPerPage={listDataPerPage}
-        listData={listData.length}
-        setCurrentPage={setCurrentPage}
-        currentPage={currentPage}
-      />
+      {loading ? (
+        <LoadingContainer>
+          <CircularProgress isIndeterminate color="green.300" />
+        </LoadingContainer>
+      ) : (
+        <>
+          <TableContainer>
+            <TableHeader>
+              <TableRow>
+                <TableHeadRow
+                  onClick={() => {
+                    listData.sort((a, b) => (a.id < b.id ? 1 : -1));
+                  }}
+                >
+                  ID
+                </TableHeadRow>
+                <TableHeadRow>Name</TableHeadRow>
+                <TableHeadRow>Email</TableHeadRow>
+                <TableHeadRow>Body</TableHeadRow>
+              </TableRow>
+            </TableHeader>
+            {currentLists.map((data, index) => (
+              <TableBody key={index}>
+                <TableRow>
+                  <TableBodyRow style={{ textAlign: "center" }}>
+                    {data.id}.
+                  </TableBodyRow>
+                  <TableBodyRow>{data.name}</TableBodyRow>
+                  <TableBodyRow>{data.email}</TableBodyRow>
+                  <TableBodyRow>{data.body}</TableBodyRow>
+                </TableRow>
+              </TableBody>
+            ))}
+          </TableContainer>
+          <Pagination
+            listDataPerPage={listDataPerPage}
+            listData={listData.length}
+            setCurrentPage={setCurrentPage}
+            currentPage={currentPage}
+          />
+        </>
+      )}
     </DashboardWrapper>
   );
 };
@@ -75,13 +113,18 @@ const TableContainer = Styled("table")`
  margin-bottom:60px;
 `;
 
-const TableHeader = Styled("thead")``;
+const TableHeader = Styled("thead")`    
+position: sticky;
+top: 82px;
+`;
 const TableRow = Styled("tr")``;
 const TableHeadRow = Styled("th")`
     padding:20px 5px;
-    background: rgba(20, 150, 100, 0.16);
+    background: rgb(217,238,230);
     font-size: 20px;
-    letter-spacing: 1px;`;
+    letter-spacing: 1px;
+
+    `;
 const TableBody = Styled("tbody")`
 `;
 const TableBodyRow = Styled("td")`
@@ -91,4 +134,9 @@ const TableBodyRow = Styled("td")`
     text-transform: capitalize;
     color:rgb(98, 120, 146);
     border-right: 1px solid lightgray;
+`;
+const LoadingContainer = Styled("div")`
+height:70vh;
+display:flex;
+align-items:center;
 `;
